@@ -49,7 +49,7 @@ class Predict:
 
         for _ in range(100):
             pval = self.model.predict(forecast[-self.window_size :][np.newaxis])
-            pval=pval/2
+        
                                       
             forecast = np.append(
                 forecast, pval)
