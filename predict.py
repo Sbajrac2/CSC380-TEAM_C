@@ -47,9 +47,9 @@ class Predict:
 
         endtime = self.time_valid[len(self.time_valid) - 1]
 
-        for _ in range(100):
+        for _ in range(60):
             pval = self.model.predict(forecast[-self.window_size :][np.newaxis])
-        
+            #pval=pval/2
                                       
             forecast = np.append(
                 forecast, pval)

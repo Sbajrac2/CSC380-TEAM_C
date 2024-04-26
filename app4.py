@@ -9,7 +9,8 @@ from predict import Predict
 import numpy as np
 from collections import deque
 import random
-from datetime import datetime, timedelta, date, time
+from datetime import datetime, timedelta, date
+import time
 from typing import Dict
 from typing import List
 import matplotlib.pyplot as plt
@@ -501,7 +502,7 @@ app.layout = html.Div(
                                     children=[
                                         html.Div("Throughput Interval"),
                                         dmc.NumberInput(
-                                            value=0.2,
+                                            value=0.1,
                                             precision=2,
                                             min=0.1,
                                             step=0.2,
@@ -599,6 +600,7 @@ app.layout = html.Div(
                                     [
                                         dmc.Image(
                                             src="./assets/bargraph.png",
+                                            id="bargraphimg",
                                             alt="superman",
                                             caption="BAR CHART",
                                             width=100,
@@ -617,6 +619,7 @@ app.layout = html.Div(
                                     [
                                         dmc.Image(
                                             src="./assets/h2.png",
+                                            id="histogramimg",
                                             alt="superman",
                                             caption="HISTOGRAM",
                                             width=100,
@@ -668,6 +671,13 @@ app.layout = html.Div(
                                     variant="gradient",
                                     size="xl",
                                     gradient={"from": "darkred", "to": "red"},
+                                ),
+                                dmc.Button(
+                                    "RESET TABS",
+                                    id="deleteall",
+                                    variant="gradient",
+                                    size="xl",
+                                    gradient={"from": "black", "to": "grey"},
                                 ),
                                 dcc.Store(id='last-clicked-button', data=None),
                                 dcc.Loading(id="loading-graph", children=[html.Div(id="graph-output")]),
@@ -891,6 +901,24 @@ def check_value(*args):
     return error_messages
 
 
+@app.callback(
+    [Output(component_id="bargraph", component_property="checked"),
+    Output(component_id="histogram", component_property="checked"),
+    Output(component_id="bargraph", component_property="disabled"),
+    Output(component_id="histogram", component_property="disabled"),
+    Output(component_id="bargraphimg", component_property="opacity"),
+    Output(component_id="bargraphimg", component_property="src"),
+    Output(component_id="histogramimg", component_property="opacity"),
+    Output(component_id="histogramimg", component_property="src")],
+    Input(component_id="graph-content-filter", component_property="value"),
+    )
+def suggest_graph_type(value):
+    if(value == "Cycle Count"):
+        return False,False,False,False,1,"./assets/bargraphhighlight.png",1,"./assets/h2highlight.png"
+    else:
+        return False,False,True,True,0.4,"./assets/bargraph.png",0.4,"./assets/h2.png"
+
+
 # Callback to toggle popup content visibility
 @app.callback(
     Output("popup-container", "children"),
@@ -1051,9 +1079,9 @@ def close_popup(n_clicks):
 
 @callback(
     Output(component_id="tabs", component_property="children"),
-    # Output("error-container","style"),
     Input(component_id="graphbutton", component_property="n_clicks"),
     Input(component_id="predictbutton", component_property="n_clicks"),
+    Input(component_id="deleteall", component_property="n_clicks"),
     State(component_id="linegraph", component_property="checked"),
     State(component_id="bargraph", component_property="checked"),
     State(component_id="histogram", component_property="checked"),
@@ -1089,41 +1117,41 @@ def close_popup(n_clicks):
     prevent_initial_call=True,
 )
 def update_graph(*args):
-    global tabsname, grapharray
+    global tabsname, grapharray, tabCount
 
     # selecting arguments: they will be in order as in the callback function
-    differentgraphs = args[2:5]
+    differentgraphs = args[3:6]
 
-    checked_values = args[5:26]  # Extracting checked values from args
+    checked_values = args[6:27]  # Extracting checked values from args
 
-    startTime, am_pm1 = args[26].split()
+    startTime, am_pm1 = args[27].split()
     if (startTime != "12") and (am_pm1 == "PM"):
         startTime = str(int(startTime) + 12)
     else:
         startTime = str(startTime)
-    endTime, am_pm2 = args[27].split()
+    endTime, am_pm2 = args[28].split()
     if (endTime != "12") and (am_pm2 == "PM"):
         endTime = str(int(endTime) + 12)
     else:
         endTime = str(endTime)
 
-    interval_throughput = args[28]
+    interval_throughput = args[29]
     # startDateFormat = args[29][0]
     # startDate = str(startDateFormat)
     # endDateFormat = args[29][1]
     # endDate = str(endDateFormat)
-    startDate = args[29]
-    endDate = args[30]
-    content = args[31]
-    lowerBound = int(args[32].split()[0])
-    if args[32].split()[1] == "min":
-        lowerBound *= 60
-    elif args[32].split()[1] == "hr":
-        lowerBound *= 3600
-    upperBound = int(args[33].split()[0])
+    startDate = args[30]
+    endDate = args[31]
+    content = args[32]
+    lowerBound = int(args[33].split()[0])
     if args[33].split()[1] == "min":
-        upperBound *= 60
+        lowerBound *= 60
     elif args[33].split()[1] == "hr":
+        lowerBound *= 3600
+    upperBound = int(args[34].split()[0])
+    if args[34].split()[1] == "min":
+        upperBound *= 60
+    elif args[34].split()[1] == "hr":
         upperBound *= 3600
 
     # Extract the IDs of the checked checkboxes
@@ -1197,6 +1225,14 @@ def update_graph(*args):
     #           Input("error_messages")
     #
     # )
+
+    if ctx.triggered_id == "deleteall":
+        tabsname.clear()
+        grapharray.clear()
+        tabCount = 0
+        a = update_tabs()
+
+        return a
 
     # if user hits graphbutton
     if ctx.triggered_id == "graphbutton":
@@ -1304,6 +1340,7 @@ def update_graph(*args):
         predict_graph(checked_data)
         a = update_tabs()
         return a
+
 
 
 def update_tabs():
@@ -1713,25 +1750,26 @@ def convertToTimeFormat(time: str):
         return time + ":00:00"
 
 
-def rateArray(arrayProductivity: List[int], name: str):
+def rateArray(arrayProductivity: List[int], name: str, interval: int):
     percentOfMaxProduction = []
     ##machines with producitvity split between two machines
-    if "A" in name or "B" in name or "71" in name or "72" in name or "91" in name or "92" in name:
+    if ('A' in name or 'B' in name or '71' in name or '72' in name or '91' in name or '92' in name):
 
         for x in arrayProductivity:
-            capped_value = min(x, 265)
+            capped_value = min(x, (265*interval))
 
-            res = (capped_value / 265) * 100
+            res = (capped_value / (265*interval)) * 100
             percentOfMaxProduction.append(res)
     ##machines with full producitvity
     else:
 
         for x in arrayProductivity:
-            capped_value = min(x, 530)
+            capped_value = min(x, (530*interval))
 
-            res = (capped_value / 530) * 100
+            res = (capped_value / (530*interval)) * 100
             percentOfMaxProduction.append(res)
     return percentOfMaxProduction
+
 
 
 def dropHigherThan(df: pd.DataFrame, upper_threshold: int):
@@ -1761,16 +1799,16 @@ def dropLowerThan(df: pd.DataFrame, lower_threshold: int):
 
 
 def createGraph(
-    type: str,
-    variable: str,
-    machineNames: List[str],
-    startDay: str,
-    endDay: str,
-    startHour: str,
-    endHour: str,
-    intervals: float,
-    higherThan: int,
-    lowerThan: int,
+        type: str,
+        variable: str,
+        machineNames: List[str],
+        startDay: str,
+        endDay: str,
+        startHour: str,
+        endHour: str,
+        intervals: float,
+        higherThan: int,
+        lowerThan: int,
 ):
     startTime = convertToTimeFormat(startHour)
     endTime = convertToTimeFormat(endHour)
@@ -1797,22 +1835,23 @@ def createGraph(
         elif type == "bar":
             barGraphProductivity(listProductivityArrays, timearray1)
 
+
         elif type == "histo":
             histogramProductivity(listProductivityArrays)
+
 
     elif variable == "rate":
         listRates = {}
         listProductivityArrays = {}
         for df in machine_dfs:
-            productivityarray1, timearray1 = createProductivityArray(
-                machine_dfs[df],
-                machine_dfs[df].iloc[0, 0],
-                machine_dfs[df].iloc[len(machine_dfs[df]) - 1, 0],
-                1,
+            productivityarray1, timearray1 = createProductivityArray(machine_dfs[df], machine_dfs[df].iloc[0, 0],machine_dfs[df].iloc[len(machine_dfs[df]) - 1, 0],
+                intervals
             )
-            listRates[df] = rateArray(productivityarray1, df)
+
+            listRates[df] = rateArray(productivityarray1, df, intervals)
 
         lineGraphRates(listRates, timearray1)
+
 
     elif variable == "times":
         for name in machineNames:
@@ -1881,11 +1920,6 @@ def plot_moving_average(x_values: list, y_values: list, window_size: int, a):
     # Plot the original data and the moving average
     fig = go.Figure()
 
-    # Add original data trace
-    fig.add_trace(
-        go.Scatter(x=x_values, y=y_values, mode="lines", name="Predicted Data")
-    )
-
     # Add moving average trace
     fig.add_trace(
         go.Scatter(
@@ -1894,6 +1928,11 @@ def plot_moving_average(x_values: list, y_values: list, window_size: int, a):
             mode="lines",
             name=f"Moving Average ({window_size} periods)",
         )
+    )
+    
+    # Add original data trace
+    fig.add_trace(
+        go.Scatter(x=x_values, y=y_values, mode="lines", name="Predicted Data")
     )
 
     differences = moving_average.diff()
