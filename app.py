@@ -16,7 +16,6 @@ from typing import List
 import matplotlib.pyplot as plt
 import plotly.graph_objs as go
 
-
 # queue to implement new tabs
 tabsname = deque()
 grapharray = deque()
@@ -719,59 +718,54 @@ app.layout = html.Div(
     className="maindiv",
 )
 
+
 # Callback to store the last clicked button
 @app.callback(
-   Output('last-clicked-button', 'data'),
-   [Input('graphbutton', 'n_clicks'),
-    Input('predictbutton', 'n_clicks')],
+    Output('last-clicked-button', 'data'),
+    [Input('graphbutton', 'n_clicks'),
+     Input('predictbutton', 'n_clicks')],
 )
 def store_last_clicked_button(graph_clicks, predict_clicks):
-   if graph_clicks:
-       return 'graph'
-   elif predict_clicks:
-       return 'predict'
-   else:
-       return None
-
-
+    if graph_clicks:
+        return 'graph'
+    elif predict_clicks:
+        return 'predict'
+    else:
+        return None
 
 
 # Callback to generate graph or prediction
 @app.callback(
-   [
-       Output("loading-graph", "children"),
+    [
+        Output("loading-graph", "children"),
 
-   ],
-   [
-       Input("last-clicked-button", "data"),
-   ],
+    ],
+    [
+        Input("last-clicked-button", "data"),
+    ],
 )
 def generate_graph_or_predict(last_clicked_button):
-   if last_clicked_button is None:
-       raise dash.exceptions.PreventUpdate
+    if last_clicked_button is None:
+        raise dash.exceptions.PreventUpdate
 
+    loading_output = None
 
-   loading_output = None
-   
+    if last_clicked_button == "graph":
+        loading_output = "Graph Generated"
 
+        # Call the function to generate the graph
+        time.sleep(.5)  # Simulate graph generation delay
+        # Replace this with your graph generation logic
+        # graph_output = update_graph()
+        # graph_output = create_graph()
+    elif last_clicked_button == "predict":
+        loading_output = "Prediction Processed"
+        # Call the function to process prediction
+        time.sleep(10)  # Simulate prediction processing delay
+        # Replace this with your prediction logic
+        # prediction_output = process_prediction()
 
-   if last_clicked_button == "graph":
-       loading_output = "Graph Generated"
-       
-       # Call the function to generate the graph
-       time.sleep(.5)  # Simulate graph generation delay
-       # Replace this with your graph generation logic
-       #graph_output = update_graph()
-       # graph_output = create_graph()
-   elif last_clicked_button == "predict":
-       loading_output = "Prediction Processed"
-       # Call the function to process prediction
-       time.sleep(10)  # Simulate prediction processing delay
-       # Replace this with your prediction logic
-       # prediction_output = process_prediction()
-
-
-   return loading_output
+    return loading_output
 
 
 # @app.callback(
@@ -903,20 +897,20 @@ def check_value(*args):
 
 @app.callback(
     [Output(component_id="bargraph", component_property="checked"),
-    Output(component_id="histogram", component_property="checked"),
-    Output(component_id="bargraph", component_property="disabled"),
-    Output(component_id="histogram", component_property="disabled"),
-    Output(component_id="bargraphimg", component_property="opacity"),
-    Output(component_id="bargraphimg", component_property="src"),
-    Output(component_id="histogramimg", component_property="opacity"),
-    Output(component_id="histogramimg", component_property="src")],
+     Output(component_id="histogram", component_property="checked"),
+     Output(component_id="bargraph", component_property="disabled"),
+     Output(component_id="histogram", component_property="disabled"),
+     Output(component_id="bargraphimg", component_property="opacity"),
+     Output(component_id="bargraphimg", component_property="src"),
+     Output(component_id="histogramimg", component_property="opacity"),
+     Output(component_id="histogramimg", component_property="src")],
     Input(component_id="graph-content-filter", component_property="value"),
-    )
+)
 def suggest_graph_type(value):
-    if(value == "Cycle Count"):
-        return False,False,False,False,1,"./assets/bargraphhighlight.png",1,"./assets/h2highlight.png"
+    if (value == "Cycle Count"):
+        return False, False, False, False, 1, "./assets/bargraphhighlight.png", 1, "./assets/h2highlight.png"
     else:
-        return False,False,True,True,0.4,"./assets/bargraph.png",0.4,"./assets/h2.png"
+        return False, False, True, True, 0.4, "./assets/bargraph.png", 0.4, "./assets/h2.png"
 
 
 # Callback to toggle popup content visibility
@@ -948,6 +942,7 @@ def toggle_popup(n_clicks, popup_content):
                         },
                     ),
                     style={"position": "relative"},
+
                 ),
                 html.H5(
                     "Our Story", style={"font-size": "30px", "font-weight": "bold"}
@@ -966,7 +961,10 @@ def toggle_popup(n_clicks, popup_content):
                                     [
                                         html.Span("Luke Murphy"),
                                         html.Br(),
-                                        html.Span("lmurphy6@oswego.edu"),
+                                        html.Span("lukemurphy472@gmail.com"),
+                                        html.Br(),
+                                        # html.A("Luke's LinkedIn Profile", href="https://www.linkedin.com/in/luke", target="_blank"),
+                                        html.Span("LinkedIn TBA"),
                                     ],
                                     style={
                                         "display": "inline-block",
@@ -978,7 +976,12 @@ def toggle_popup(n_clicks, popup_content):
                                     [
                                         html.Span("Nidhi Patel"),
                                         html.Br(),
-                                        html.Span("npatel4@oswego.edu"),
+                                        html.Span("nidhi.patel.2326@gmail.com"),
+                                        html.Br(),
+                                        html.A("Nidhi's LinkedIn Profile",
+                                               href="https://www.linkedin.com/in/nidhi-patel-854540220/",
+                                               target="_blank"),
+                                        # html.Span("https://www.linkedin.com/in/nidhi-patel-854540220/"),
                                     ],
                                     style={
                                         "display": "inline-block",
@@ -990,7 +993,11 @@ def toggle_popup(n_clicks, popup_content):
                                     [
                                         html.Span("Praneeta Pradhan"),
                                         html.Br(),
-                                        html.Span("ppradhan@oswego.edu"),
+                                        html.Span("p.praneeta3@gmail.com"),
+                                        html.Br(),
+                                        html.A("Praneeta's LinkedIn Profile",
+                                               href="https://www.linkedin.com/in/praneeta-pradhan", target="_blank"),
+                                        # html.Span("https://www.linkedin.com/in/praneeta-pradhan"),
                                     ],
                                     style={
                                         "display": "inline-block",
@@ -1006,7 +1013,12 @@ def toggle_popup(n_clicks, popup_content):
                                     [
                                         html.Span("Shrishtika Bajracharya"),
                                         html.Br(),
-                                        html.Span("sbajrac2@oswego.edu"),
+                                        html.Span("shrishtika.vajra@gmail.com"),
+                                        html.Br(),
+                                        html.A("Shrishtika's LinkedIn Profile",
+                                               href="https://www.linkedin.com/in/shrishtika-bajracharya",
+                                               target="_blank"),
+                                        # html.Span("https://www.linkedin.com/in/shrishtika-bajracharya"),
                                     ],
                                     style={
                                         "display": "inline-block",
@@ -1018,7 +1030,12 @@ def toggle_popup(n_clicks, popup_content):
                                     [
                                         html.Span("Shusanket Basyal"),
                                         html.Br(),
-                                        html.Span("sbasyal@oswego.edu"),
+                                        html.Span("shusanketbasyal76@gmail.com"),
+                                        html.Br(),
+                                        html.A("Shusanket's LinkedIn Profile",
+                                               href="https://www.linkedin.com/in/shusanket-basyal-6b8b03253/",
+                                               target="_blank"),
+                                        # html.Span("https://www.linkedin.com/in/shusanket-basyal-6b8b03253/"),
                                     ],
                                     style={
                                         "display": "inline-block",
@@ -1030,7 +1047,11 @@ def toggle_popup(n_clicks, popup_content):
                                     [
                                         html.Span("Zipporah Muse"),
                                         html.Br(),
-                                        html.Span("zmuse@oswego.edu"),
+                                        html.Span("musezipporah@gmail.com"),
+                                        html.Br(),
+                                        html.A("Zipporah's LinkedIn Profile",
+                                               href="www.linkedin.com/in/zipporah-muse-25496724a", target="_blank"),
+                                        # html.Span("www.linkedin.com/in/zipporah-muse-25496724a"),
                                     ],
                                     style={
                                         "display": "inline-block",
@@ -1058,6 +1079,7 @@ def toggle_popup(n_clicks, popup_content):
                 "font-size": "20px",
                 "z-index": "1000",
                 "text-align": "center",
+                "overflow": "auto"
             },
         )
     else:
@@ -1342,7 +1364,6 @@ def update_graph(*args):
         return a
 
 
-
 def update_tabs():
     # function to add new tabs
     global tabsname, grapharray
@@ -1446,7 +1467,7 @@ makeColumns4567()
 
 
 def countproductivity(
-    df: pd.DataFrame, startime: pd.Timestamp, secondtime: pd.Timestamp
+        df: pd.DataFrame, startime: pd.Timestamp, secondtime: pd.Timestamp
 ):
     return len(
         df[(df[1] >= startime) & (df[1] < secondtime) & (df[3] == "1 - Productive")]
@@ -1454,7 +1475,7 @@ def countproductivity(
 
 
 def createProductivityArray(
-    df: pd.DataFrame, startime: pd.Timestamp, endtime: pd.Timestamp, intervals: float
+        df: pd.DataFrame, startime: pd.Timestamp, endtime: pd.Timestamp, intervals: float
 ) -> List[int]:
     # INITIALIZING AN ARRAY
     productivityarray = []
@@ -1498,19 +1519,19 @@ def lineGraphProductivity(data_dict: Dict[str, List[int]], timearray: List):
         yaxis_title="Productive Counts",
         title="Throughput",
         hovermode="closest",
-        # height=1000,
-        # xaxis=dict(
-        #     title_font=dict(size=18),
-        #     tickfont=dict(size=14)
-        # ),
-        # yaxis=dict(
-        #     title_font=dict(size=18),
-        #     tickfont=dict(size=14)
-        # ),
-        # title_font=dict(size=24),
-        # legend=dict(
-        #     font=dict(size=16)
-        # )
+        height=700,
+        xaxis=dict(
+            title_font=dict(size=18),
+            tickfont=dict(size=14)
+        ),
+        yaxis=dict(
+            title_font=dict(size=18),
+            tickfont=dict(size=14)
+        ),
+        title_font=dict(size=24),
+        legend=dict(
+            font=dict(size=16)
+        )
     )
 
     fig.update_xaxes(rangeslider_visible=True)
@@ -1548,19 +1569,19 @@ def lineGraphRates(data_dict: Dict[str, List[int]], timearray: List):
         yaxis_title="Rate per Hour",
         title="Rate of Production vs Hours",
         hovermode="closest",
-        # height=1000,
-        # xaxis=dict(
-        #     title_font=dict(size=18),
-        #     tickfont=dict(size=14)
-        # ),
-        # yaxis=dict(
-        #     title_font=dict(size=18),
-        #     tickfont=dict(size=14)
-        # ),
-        # title_font=dict(size=24),
-        # legend=dict(
-        #     font=dict(size=16)
-        # )
+        height=700,
+        xaxis=dict(
+            title_font=dict(size=18),
+            tickfont=dict(size=14)
+        ),
+        yaxis=dict(
+            title_font=dict(size=18),
+            tickfont=dict(size=14)
+        ),
+        title_font=dict(size=24),
+        legend=dict(
+            font=dict(size=16)
+        )
     )
 
     fig.update_xaxes(rangeslider_visible=True)
@@ -1595,19 +1616,19 @@ def graphTimes(data_dict: Dict[str, List[int]]):
         yaxis_title="Duration between Machine Status (seconds)",
         title="Duration of Machine Status vs Time",
         hovermode="closest",
-        # height=1000,
-        # xaxis=dict(
-        #     title_font=dict(size=18),
-        #     tickfont=dict(size=14)
-        # ),
-        # yaxis=dict(
-        #     title_font=dict(size=18),
-        #     tickfont=dict(size=14)
-        # ),
-        # title_font=dict(size=24),
-        # legend=dict(
-        #     font=dict(size=16)
-        # )
+        height=700,
+        xaxis=dict(
+            title_font=dict(size=18),
+            tickfont=dict(size=14)
+        ),
+        yaxis=dict(
+            title_font=dict(size=18),
+            tickfont=dict(size=14)
+        ),
+        title_font=dict(size=24),
+        legend=dict(
+            font=dict(size=16)
+        )
     )
     fig.update_xaxes(rangeslider_visible=True)
     # creating a random value for tabsname
@@ -1644,19 +1665,19 @@ def barGraphProductivity(data_dict: Dict[str, List[int]], timearray: List):
         title="Throughput",
         barmode="group",
         hovermode="closest",
-        # height=1000,
-        # xaxis=dict(
-        #     title_font=dict(size=18),
-        #     tickfont=dict(size=14)
-        # ),
-        # yaxis=dict(
-        #     title_font=dict(size=18),
-        #     tickfont=dict(size=14)
-        # ),
-        # title_font=dict(size=24),
-        # legend=dict(
-        #     font=dict(size=16)
-        # )
+        height=700,
+        xaxis=dict(
+            title_font=dict(size=18),
+            tickfont=dict(size=14)
+        ),
+        yaxis=dict(
+            title_font=dict(size=18),
+            tickfont=dict(size=14)
+        ),
+        title_font=dict(size=24),
+        legend=dict(
+            font=dict(size=16)
+        )
     )
 
     fig.update_xaxes(rangeslider_visible=True)
@@ -1693,19 +1714,19 @@ def histogramProductivity(data_dict: Dict[str, List[int]]):
         yaxis_title="Frequency",
         title="Throughput Distribution",
         hovermode="closest",
-        # height=1000,
-        # xaxis=dict(
-        #     title_font=dict(size=18),
-        #     tickfont=dict(size=14)
-        # ),
-        # yaxis=dict(
-        #     title_font=dict(size=18),
-        #     tickfont=dict(size=14)
-        # ),
-        # title_font=dict(size=24),
-        # legend=dict(
-        #     font=dict(size=16)
-        # )
+        height=700,
+        xaxis=dict(
+            title_font=dict(size=18),
+            tickfont=dict(size=14)
+        ),
+        yaxis=dict(
+            title_font=dict(size=18),
+            tickfont=dict(size=14)
+        ),
+        title_font=dict(size=24),
+        legend=dict(
+            font=dict(size=16)
+        )
     )
     fig.update_xaxes(rangeslider_visible=True)
     # creating a random value for tabsname
@@ -1724,7 +1745,7 @@ def histogramProductivity(data_dict: Dict[str, List[int]]):
 
 ###get data with a start, end date, start, end time
 def filter_dataframe(
-    df: pd.DataFrame, start_date: str, end_date: str, start_time: str, end_time: str
+        df: pd.DataFrame, start_date: str, end_date: str, start_time: str, end_time: str
 ) -> pd.DataFrame:
     # Create start and end datetime objects
     start_datetime = pd.to_datetime(start_date + " " + start_time)
@@ -1756,20 +1777,19 @@ def rateArray(arrayProductivity: List[int], name: str, interval: int):
     if ('A' in name or 'B' in name or '71' in name or '72' in name or '91' in name or '92' in name):
 
         for x in arrayProductivity:
-            capped_value = min(x, (265*interval))
+            capped_value = min(x, (265 * interval))
 
-            res = (capped_value / (265*interval)) * 100
+            res = (capped_value / (265 * interval)) * 100
             percentOfMaxProduction.append(res)
     ##machines with full producitvity
     else:
 
         for x in arrayProductivity:
-            capped_value = min(x, (530*interval))
+            capped_value = min(x, (530 * interval))
 
-            res = (capped_value / (530*interval)) * 100
+            res = (capped_value / (530 * interval)) * 100
             percentOfMaxProduction.append(res)
     return percentOfMaxProduction
-
 
 
 def dropHigherThan(df: pd.DataFrame, upper_threshold: int):
@@ -1844,9 +1864,10 @@ def createGraph(
         listRates = {}
         listProductivityArrays = {}
         for df in machine_dfs:
-            productivityarray1, timearray1 = createProductivityArray(machine_dfs[df], machine_dfs[df].iloc[0, 0],machine_dfs[df].iloc[len(machine_dfs[df]) - 1, 0],
-                intervals
-            )
+            productivityarray1, timearray1 = createProductivityArray(machine_dfs[df], machine_dfs[df].iloc[0, 0],
+                                                                     machine_dfs[df].iloc[len(machine_dfs[df]) - 1, 0],
+                                                                     intervals
+                                                                     )
 
             listRates[df] = rateArray(productivityarray1, df, intervals)
 
@@ -1929,7 +1950,7 @@ def plot_moving_average(x_values: list, y_values: list, window_size: int, a):
             name=f"Moving Average ({window_size} periods)",
         )
     )
-    
+
     # Add original data trace
     fig.add_trace(
         go.Scatter(x=x_values, y=y_values, mode="lines", name="Predicted Data")
