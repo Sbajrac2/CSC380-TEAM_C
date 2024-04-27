@@ -678,6 +678,13 @@ app.layout = html.Div(
                                     size="xl",
                                     gradient={"from": "black", "to": "grey"},
                                 ),
+                                dmc.Button(
+                                    "DELETE LAST TAB",
+                                    id="deletelast",
+                                    variant="gradient",
+                                    size="xl",
+                                    gradient={"from": "darkgreen", "to": "green"},
+                                ),
                                 dcc.Store(id='last-clicked-button', data=None),
                                 dcc.Loading(id="loading-graph", children=[html.Div(id="graph-output")]),
                             ],
@@ -1104,6 +1111,7 @@ def close_popup(n_clicks):
     Input(component_id="graphbutton", component_property="n_clicks"),
     Input(component_id="predictbutton", component_property="n_clicks"),
     Input(component_id="deleteall", component_property="n_clicks"),
+    Input(component_id="deletelast", component_property="n_clicks"),
     State(component_id="linegraph", component_property="checked"),
     State(component_id="bargraph", component_property="checked"),
     State(component_id="histogram", component_property="checked"),
@@ -1142,38 +1150,38 @@ def update_graph(*args):
     global tabsname, grapharray, tabCount
 
     # selecting arguments: they will be in order as in the callback function
-    differentgraphs = args[3:6]
+    differentgraphs = args[4:7]
 
-    checked_values = args[6:27]  # Extracting checked values from args
+    checked_values = args[7:28]  # Extracting checked values from args
 
-    startTime, am_pm1 = args[27].split()
+    startTime, am_pm1 = args[28].split()
     if (startTime != "12") and (am_pm1 == "PM"):
         startTime = str(int(startTime) + 12)
     else:
         startTime = str(startTime)
-    endTime, am_pm2 = args[28].split()
+    endTime, am_pm2 = args[29].split()
     if (endTime != "12") and (am_pm2 == "PM"):
         endTime = str(int(endTime) + 12)
     else:
         endTime = str(endTime)
 
-    interval_throughput = args[29]
+    interval_throughput = args[30]
     # startDateFormat = args[29][0]
     # startDate = str(startDateFormat)
     # endDateFormat = args[29][1]
     # endDate = str(endDateFormat)
-    startDate = args[30]
-    endDate = args[31]
-    content = args[32]
-    lowerBound = int(args[33].split()[0])
-    if args[33].split()[1] == "min":
-        lowerBound *= 60
-    elif args[33].split()[1] == "hr":
-        lowerBound *= 3600
-    upperBound = int(args[34].split()[0])
+    startDate = args[31]
+    endDate = args[32]
+    content = args[33]
+    lowerBound = int(args[34].split()[0])
     if args[34].split()[1] == "min":
-        upperBound *= 60
+        lowerBound *= 60
     elif args[34].split()[1] == "hr":
+        lowerBound *= 3600
+    upperBound = int(args[35].split()[0])
+    if args[35].split()[1] == "min":
+        upperBound *= 60
+    elif args[35].split()[1] == "hr":
         upperBound *= 3600
 
     # Extract the IDs of the checked checkboxes
@@ -1255,6 +1263,14 @@ def update_graph(*args):
         a = update_tabs()
 
         return a
+    
+    if ctx.triggered_id == "deletelast":
+        if len(tabsname) > 0:
+            del tabsname[-1]
+            del grapharray[-1]
+            tabCount-= 1
+            a = update_tabs()
+            return a
 
     # if user hits graphbutton
     if ctx.triggered_id == "graphbutton":
@@ -1901,7 +1917,7 @@ def predict_graph(checked_data):
     maindataobject.create_dataframeforsinglemachine(key)
     # extracting necessay infromation  from data.py and passing it to MlModel
     pa, ta = maindataobject.dataforml()
-    predict = Predict(pa, ta)
+    predict = Predict(pa, ta, key)
 
     # getting results, time_valid and x_valid
     [results, time_valid, x_valid] = predict.model_forecast(48)
@@ -1926,11 +1942,11 @@ def predict_graph(checked_data):
     # adding tabname to tabsname queue
 
     tabCount += 1
-    tabsname.appendleft(str(tabCount) + ". PREDICTION FOR " + key)
+    tabsname.append(str(tabCount) + ". PREDICTION FOR " + key)
 
     # adding fig to graph array
     b = [fig, fig1]
-    grapharray.appendleft(b)
+    grapharray.append(b)
 
 
 def plot_moving_average(x_values: list, y_values: list, window_size: int, a):
