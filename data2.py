@@ -128,7 +128,7 @@ class Data:
             # IF COUNT ==0 THEN SKIP
 
             self.productivityarray.append(count)
-            self.timearray.append(startime)
+            self.timearray.append(secondtime)
             startime += pd.Timedelta(hours=0.5)
 
         return [self.productivityarray, self.timearray]
