@@ -1917,7 +1917,7 @@ def predict_graph(checked_data):
     maindataobject.create_dataframeforsinglemachine(key)
     # extracting necessay infromation  from data.py and passing it to MlModel
     pa, ta = maindataobject.dataforml()
-    predict = Predict(pa, ta, key)
+    predict = Predict(pa, ta)
 
     # getting results, time_valid and x_valid
     [results, time_valid, x_valid] = predict.model_forecast(48)
