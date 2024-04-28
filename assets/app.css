@@ -228,7 +228,8 @@ grid-column: span 3;
 }
 
 
-.datemaindiv, .startimemaindiv, .endtimemaindiv{
+
+.datemaindiv{
   display: grid;
   /* background-color: red; */
   text-align: center;
@@ -236,6 +237,17 @@ grid-column: span 3;
   font-size: 1.2rem;
   font-weight: 100;
 
+  justify-content: center;
+}
+
+.startimemaindiv, .endtimemaindiv{
+  display: grid;
+  /* background-color: red; */
+  text-align: left;
+  gap: .3rem;
+  font-size: 1.2rem;
+  font-weight: 100;
+  width:155px;
   justify-content: center;
 }
 
